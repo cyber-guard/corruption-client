@@ -1,5 +1,5 @@
 <template>
-  <mdb-container class="navbar-offset">
+  <mdb-container v-mdb-infite-scroll="loadArticles" class="navbar-offset" fluid>
     <mdb-row>
       <mdb-col col="10">
         <mdb-card>
@@ -62,6 +62,7 @@
                   <mdb-col col="6" class="text-center">
                     <button
                       class="btn btn-primary"
+                      :disabled="loading"
                       @click="citation(article.OA)"
                     >
                       Citation
@@ -102,7 +103,8 @@ import {
   mdbBtn,
   mdbModal,
   mdbModalBody,
-  mdbModalFooter
+  mdbModalFooter,
+  mdbInfiniteScroll
 } from 'mdbvue'
 import Cite from 'citation-js'
 export default {
@@ -122,6 +124,7 @@ export default {
     mdbModalBody,
     mdbModalFooter
   },
+  directives: { mdbInfiniteScroll },
   async fetch() {
     const data = await this.$axios.$get('/articles', {
       params: {
@@ -146,19 +149,32 @@ export default {
       modal: false,
       citation_content: '',
       articles: [],
-      articles_count: 0
+      articles_count: 0,
+      loading: false
     }
   },
   methods: {
-    citation(url) {
+    async citation(url) {
+      this.loading = true
       const doi = url.match(/href=".*?\?url=(.*?)"/)
-      const cite = new Cite(doi[1])
+      const cite = await Cite.async(doi[1])
       this.modal = true
       this.citation_content = cite.format('bibliography', {
         format: 'html',
         template: 'apa',
         lang: 'en-US'
       })
+      this.loading = false
+    },
+    async loadArticles() {
+      const data = await this.$axios.$get('/articles', {
+        params: {
+          _limit: 10,
+          Abstract_contains: this.value,
+          Title_contains: this.value
+        }
+      })
+      this.articles.push(data)
     }
   }
 }

@@ -78,7 +78,7 @@ export default {
         {
           name: 'List View',
           icon: 'list-alt',
-          href: '/corruption-client/list'
+          to: '/corruption-client/list'
         },
         {
           name: 'Table View',
