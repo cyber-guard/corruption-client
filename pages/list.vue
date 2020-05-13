@@ -140,7 +140,7 @@ export default {
     this.articles = data
   },
   fetchOnServer: false,
-  data() {
+  data(context) {
     return {
       value: '',
       modal: false,

@@ -76,55 +76,19 @@ export default {
       over: false,
       navigation: [
         {
-          name: 'View data',
-          icon: 'bars',
-          children: [
-            {
-              name: 'Version 1',
-              to: '/navigation/pro/double-navigation-v1'
-            },
-            {
-              name: 'Version 2',
-              to: '/navigation/pro/double-navigation-v2'
-            },
-            {
-              name: 'Version 3',
-              to: '/navigation/pro/double-navigation-v3'
-            },
-            {
-              name: 'Version 4',
-              to: '/navigation/pro/double-navigation-v4'
-            },
-            {
-              name: 'Version 5',
-              to: '/navigation/pro/double-navigation-v5'
-            },
-            {
-              name: 'Version 6',
-              to: '/navigation/pro/double-navigation-v6'
-            }
-          ]
+          name: 'List View',
+          icon: 'list-alt',
+          href: '/corruption-client/list'
         },
         {
-          name: 'Getting started',
-          icon: 'mdb',
-          fab: true,
-          children: [
-            {
-              name: 'Quick start',
-              href:
-                'https://mdbootstrap.com/docs/vue/getting-started/quick-start/'
-            },
-            {
-              name: 'Technical Support',
-              href: 'https://mdbootstrap.com/support/'
-            }
-          ]
+          name: 'Table View',
+          icon: 'table',
+          href: '/corruption-client/table'
         },
         {
-          name: 'Documentation',
-          icon: 'graduation-cap',
-          href: 'https://mdbootstrap.com/docs/vue/'
+          name: 'Visualization',
+          icon: 'chart-bar',
+          href: '/corruption-client/visual'
         }
       ]
     }
