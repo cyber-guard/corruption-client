@@ -10,11 +10,13 @@
     "start": "nuxt start",
     "generate": "nuxt generate",
     "lint": "eslint --ext .js,.vue --ignore-path .gitignore .",
-    "test": "jest"
+    "test": "jest",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@nuxtjs/axios": "^5.10.3",
     "@nuxtjs/dotenv": "^1.4.0",
+    "gh-pages": "^2.2.0",
     "mdbvue": "git+https://oauth2:Roh-217F9TAvwAAxjAre@git.mdbootstrap.com/mdb/vue/vu-pro.git",
     "nuxt": "^2.0.0"
   },

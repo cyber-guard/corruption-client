@@ -1,5 +1,8 @@
 export default {
   mode: 'spa',
+   router: {
+     base: '/corruption-client/'
+   },
   /*
    ** Headers of the page
    */
