@@ -1,16 +1,19 @@
 <template>
   <mdb-container class="navbar-offset">
     <mdb-row>
-      <mdb-col col="12">
+      <mdb-col col="10">
         <mdb-card>
           <mdb-input
             v-model="value"
             label="Search..."
             size="lg"
             class="p-2 m-2"
-            @input="$fetch"
           />
+          <mdb-btn @click="$fetch">Search</mdb-btn>
         </mdb-card>
+      </mdb-col>
+      <mdb-col col="2">
+        <button class="btn btn-primary">{{ articles_count }}</button>
       </mdb-col>
     </mdb-row>
     <mdb-row v-for="article in articles" :key="article.Id" class="item">
@@ -124,10 +127,16 @@ export default {
       params: {
         _limit: 10,
         Abstract_contains: this.value,
-        Authors_contains: this.value,
         Title_contains: this.value
       }
     })
+    const count = await this.$axios.$get('/articles/count', {
+      params: {
+        Abstract_contains: this.value,
+        Title_contains: this.value
+      }
+    })
+    this.articles_count = count
     this.articles = data
   },
   fetchOnServer: false,
@@ -136,20 +145,20 @@ export default {
       value: '',
       modal: false,
       citation_content: '',
-      articles: []
+      articles: [],
+      articles_count: 0
     }
   },
   methods: {
     citation(url) {
-      const doi = url.match(/href="(.*?)"/)
-      const cite = new Cite('10.1007/978-3-030-14140-0_1')
+      const doi = url.match(/href=".*?\?url=(.*?)"/)
+      const cite = new Cite(doi[1])
       this.modal = true
       this.citation_content = cite.format('bibliography', {
         format: 'html',
         template: 'apa',
         lang: 'en-US'
       })
-      console.log(doi)
     }
   }
 }
