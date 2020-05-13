@@ -1,8 +1,8 @@
 <template>
-  <mdb-container>
+  <mdb-container class="navbar-offset">
     <mdb-row>
       <mdb-col col="12">
-        <mdb-card class="mt-5">
+        <mdb-card>
           <mdb-input
             v-model="value"
             label="Search..."
@@ -154,3 +154,8 @@ export default {
   }
 }
 </script>
+<style>
+.navbar-offset {
+  margin-top: 100px !important;
+}
+</style>
