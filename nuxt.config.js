@@ -54,7 +54,7 @@ export default {
    ** See https://axios.nuxtjs.org/options
    */
   axios: {
-    browserBaseURL: 'http://arcane-waters-24161.herokuapp.com/',
+    browserBaseURL: 'https://arcane-waters-24161.herokuapp.com/',
     progress: true
   },
   /*
