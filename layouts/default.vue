@@ -1,112 +1,38 @@
 <template>
-  <div v-mdb-resize:start="checkWidth">
-    <mdb-side-nav-2
-      v-model="show"
-      :data="navigation"
-      color="white"
-      :over="over"
-      :sidenav-class="['grey', 'darken-3', 'mt-5']"
-    >
-      <mdb-navbar
-        slot="nav"
-        tag="div"
-        position="top"
-        color="teal"
-        class="darken-4"
-        dark
-        :toggler="false"
-        :style="{ zIndex: '1061' }"
-      >
-        <mdb-navbar-nav left>
-          <mdb-icon
-            icon="bars"
-            class="white-text"
-            size="sm"
-            @click.native="show = !show"
-          />
-        </mdb-navbar-nav>
-        <mdb-navbar-nav class="nav-flex-icons" left>
-          <mdb-nav-item to="/" waves-fixed icon="code-branch"
-            ><span class="ml-1">Home</span></mdb-nav-item
-          >
-          <mdb-nav-item to="/methodology" waves-fixed icon="eye"
-            ><span class="ml-1">Methodology</span></mdb-nav-item
-          >
-          <mdb-nav-item to="/list" waves-fixed icon="file-code" far
-            ><span class="ml-1">Data</span></mdb-nav-item
-          >
-        </mdb-navbar-nav>
-      </mdb-navbar>
-
-      <div slot="main" style="width: 100%" class="view">
-        <nuxt />
-      </div>
-      <footer slot="footer">
-        Copyright 2020
-      </footer>
-    </mdb-side-nav-2>
-  </div>
+  <Sidebar>
+    <navbar slot="nav"></navbar>
+    <div slot="main" class="app-layout-main">
+      <nuxt />
+    </div>
+  </Sidebar>
 </template>
 
 <script>
-import {
-  mdbNavbar,
-  mdbNavItem,
-  mdbNavbarNav,
-  mdbSideNav2,
-  mdbIcon,
-  mdbResize
-} from 'mdbvue'
+import Navbar from './Navbar'
+import Sidebar from './Sidebar'
 
 export default {
-  name: 'DoubleNavigationPagev1',
-  components: {
-    mdbNavbar,
-    mdbNavItem,
-    mdbNavbarNav,
-    mdbSideNav2,
-    mdbIcon
-  },
-  directives: {
-    mdbResize
-  },
-  data() {
-    return {
-      show: false,
-      over: false,
-      navigation: [
-        {
-          name: 'List View',
-          icon: 'list-alt',
-          to: '/corruption-client/list'
-        },
-        {
-          name: 'Table View',
-          icon: 'table',
-          href: '/corruption-client/table'
-        },
-        {
-          name: 'Visualization',
-          icon: 'chart-bar',
-          href: '/corruption-client/visual'
-        }
-      ]
-    }
-  },
   methods: {
-    checkWidth() {
-      this.over = window.innerWidth < 900
+    onResize() {
+      this.$store.dispatch('ui/setSidebarVisibility', window.innerWidth > 1084)
     }
+  },
+  mounted() {
+    window.addEventListener('resize', this.onResize)
+    this.onResize()
+  },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.onResize)
+  },
+  components: {
+    Sidebar,
+    Navbar
   }
 }
 </script>
 
-<style scoped>
-.view {
-  background-color: azure;
-}
-.navbar i {
-  cursor: pointer;
-  color: '#123123';
+<style>
+.app-layout-main {
+  margin-top: 100px;
 }
 </style>

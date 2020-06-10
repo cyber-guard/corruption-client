@@ -5,11 +5,11 @@
         <mdb-card>
           <mdb-input
             v-model="value"
+            @input="loadArticles"
             label="Search..."
             size="lg"
             class="p-2 m-2"
           />
-          <mdb-btn @click="$fetch">Search</mdb-btn>
         </mdb-card>
       </mdb-col>
       <mdb-col col="2">
@@ -23,7 +23,11 @@
             <mdb-row>
               <mdb-col col="8">
                 <mdb-card-title
-                  ><strong>{{ article.Title }}</strong></mdb-card-title
+                  ><strong>
+                    <text-highlight :queries="value">
+                      {{ article.Title }}
+                    </text-highlight>
+                  </strong></mdb-card-title
                 >
                 <h5 class="indigo-text">
                   <strong
@@ -40,6 +44,30 @@
                   </mdb-col>
                   <mdb-col col="6">
                     {{ article.Subject }}
+                  </mdb-col>
+                </mdb-row>
+                <mdb-row>
+                  <mdb-col col="6">
+                    <strong>Type</strong>
+                  </mdb-col>
+                  <mdb-col col="6">
+                    {{ article.Type }}
+                  </mdb-col>
+                </mdb-row>
+                <mdb-row>
+                  <mdb-col col="6">
+                    <strong>Citations</strong>
+                  </mdb-col>
+                  <mdb-col col="6">
+                    {{ article.Citations }}
+                  </mdb-col>
+                </mdb-row>
+                <mdb-row>
+                  <mdb-col col="6">
+                    <strong>Keywords</strong>
+                  </mdb-col>
+                  <mdb-col col="6">
+                    N/A
                   </mdb-col>
                 </mdb-row>
                 <mdb-row class="mt-2">
@@ -107,6 +135,9 @@ import {
   mdbInfiniteScroll
 } from 'mdbvue'
 import Cite from 'citation-js'
+import TextHighlight from 'vue-text-highlight'
+import _ from 'lodash'
+
 export default {
   name: 'ListOfValues',
   components: {
@@ -122,7 +153,8 @@ export default {
     mdbBtn,
     mdbModal,
     mdbModalBody,
-    mdbModalFooter
+    mdbModalFooter,
+    TextHighlight
   },
   directives: { mdbInfiniteScroll },
   async fetch() {
@@ -166,7 +198,7 @@ export default {
       })
       this.loading = false
     },
-    async loadArticles() {
+    loadArticles: _.debounce(async function(e) {
       const data = await this.$axios.$get('/articles', {
         params: {
           _limit: 10,
@@ -174,8 +206,16 @@ export default {
           Title_contains: this.value
         }
       })
-      this.articles.push(data)
-    }
+      const count = await this.$axios.$get('/articles/count', {
+        params: {
+          Abstract_contains: this.value,
+          Title_contains: this.value
+        }
+      })
+      // this.articles.push(data)
+      this.articles_count = count
+      this.articles = data
+    }, 500)
   }
 }
 </script>

@@ -1,16 +1,19 @@
 <template>
   <div class="container">
-    <mdb-card v-html="$md.render(content)"></mdb-card>
+    <mdb-card>
+      <mdb-card-text class="p-5" v-html="$md.render(content)"></mdb-card-text>
+    </mdb-card>
   </div>
 </template>
 
 <script>
-import { mdbCard } from 'mdbvue'
+import { mdbCard, mdbCardText } from 'mdbvue'
 
 export default {
   name: 'Methogology',
   components: {
-    mdbCard
+    mdbCard,
+    mdbCardText
   },
   async asyncData({ $axios }) {
     const { data } = await $axios.get('/methodology')

@@ -1,3 +1,5 @@
+import webpack from 'webpack'
+
 export default {
   mode: 'spa',
    router: {
@@ -52,6 +54,9 @@ export default {
     '@nuxtjs/markdownit'
   ],
   markdownit: {
+    html: true,
+    breaks: true,
+    preset: 'default',
     injected: true
   },
   /*
@@ -83,6 +88,11 @@ export default {
         ]
       }
     },
+    plugins: [
+      new webpack.ProvidePlugin({
+        _: 'lodash'
+      })
+    ],
     extend(config, ctx) {}
   }
 }
