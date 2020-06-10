@@ -5,7 +5,7 @@
         <mdb-card>
           <mdb-input
             v-model="value"
-            @input="loadArticles"
+            @change="loadArticles"
             label="Search..."
             size="lg"
             class="p-2 m-2"
@@ -13,10 +13,24 @@
         </mdb-card>
       </mdb-col>
       <mdb-col col="2">
-        <button class="btn btn-primary">{{ articles_count }}</button>
+        <mdb-card class="text-center">
+          <mdb-row>
+            <mdb-col>
+              Results
+            </mdb-col>
+            <mdb-col>
+              {{ articles_count }}
+            </mdb-col>
+          </mdb-row>
+        </mdb-card>
       </mdb-col>
     </mdb-row>
-    <mdb-row v-for="article in articles" :key="article.Id" class="item">
+    <mdb-row v-if="loading">
+      <mdb-col class="pt-5 text-center" col="12">
+        <mdb-spinner />
+      </mdb-col>
+    </mdb-row>
+    <mdb-row v-else v-for="article in articles" :key="article.Id" class="item">
       <mdb-col col="12">
         <mdb-card class="mt-2">
           <mdb-card-body cascade>
@@ -29,12 +43,17 @@
                     </text-highlight>
                   </strong></mdb-card-title
                 >
-                <h5 class="indigo-text">
-                  <strong
-                    >{{ article.Authors }}, {{ article.Year }},
-                    {{ article.Source }}</strong
-                  >
-                </h5>
+                <a href="#!" @click="value = article.Authors">
+                  {{ article.Authors }}
+                </a>
+                |
+                <a href="#!" @click="value = article.Year">
+                  {{ article.Year }}
+                </a>
+                |
+                <a href="#!" @click="value = article.Source">
+                  {{ article.Source }}
+                </a>
                 <mdb-card-text>{{ article.Abstract }}</mdb-card-text>
               </mdb-col>
               <mdb-col col="4">
@@ -87,7 +106,12 @@
                   </mdb-col>
                 </mdb-row>
                 <mdb-row class="mt-2">
-                  <mdb-col col="6" class="text-center">
+                  <mdb-col col="4" class="text-center">
+                    <mdb-btn tag="a" gradient="blue"
+                      ><mdb-icon icon="unlock-alt"
+                    /></mdb-btn>
+                  </mdb-col>
+                  <mdb-col col="4" class="text-center">
                     <button
                       class="btn btn-primary"
                       :disabled="loading"
@@ -96,7 +120,7 @@
                       Citation
                     </button>
                   </mdb-col>
-                  <mdb-col col="6" class="text-center" v-html="article.OA">
+                  <mdb-col col="4" class="text-center" v-html="article.OA">
                     {{ article.OA }}
                   </mdb-col>
                 </mdb-row>
@@ -107,11 +131,12 @@
       </mdb-col>
     </mdb-row>
     <mdb-modal :show="modal" :centered="true" @close="modal = false">
+      <mdb-modal-header />
       <mdb-modal-body v-html="citation_content">{{
         citation_content
       }}</mdb-modal-body>
       <mdb-modal-footer>
-        <mdb-btn color="secondary" @click.native="modal = false">Close</mdb-btn>
+        <mdb-btn v-mdb-clipboard="citation_content">Copy</mdb-btn>
       </mdb-modal-footer>
     </mdb-modal>
   </mdb-container>
@@ -130,9 +155,12 @@ import {
   mdbCardTitle,
   mdbBtn,
   mdbModal,
+  mdbModalHeader,
   mdbModalBody,
   mdbModalFooter,
-  mdbInfiniteScroll
+  mdbInfiniteScroll,
+  mdbClipboard,
+  mdbSpinner
 } from 'mdbvue'
 import Cite from 'citation-js'
 import TextHighlight from 'vue-text-highlight'
@@ -152,11 +180,13 @@ export default {
     mdbCardTitle,
     mdbBtn,
     mdbModal,
+    mdbModalHeader,
     mdbModalBody,
     mdbModalFooter,
-    TextHighlight
+    TextHighlight,
+    mdbSpinner
   },
-  directives: { mdbInfiniteScroll },
+  directives: { mdbInfiniteScroll, mdbClipboard },
   async fetch() {
     const data = await this.$axios.$get('/articles', {
       params: {
@@ -199,6 +229,7 @@ export default {
       this.loading = false
     },
     loadArticles: _.debounce(async function(e) {
+      this.loading = true
       const data = await this.$axios.$get('/articles', {
         params: {
           _limit: 10,
@@ -215,6 +246,7 @@ export default {
       // this.articles.push(data)
       this.articles_count = count
       this.articles = data
+      this.loading = false
     }, 500)
   }
 }
