@@ -1,24 +1,51 @@
 <template>
-  <mdb-container v-mdb-infite-scroll="loadArticles" class="navbar-offset" fluid>
+  <mdb-container class="navbar-offset" fluid>
     <mdb-row>
       <mdb-col col="10">
         <mdb-card>
-          <mdb-input
-            v-model="value"
-            @change="loadArticles"
-            label="Search..."
-            size="lg"
-            class="p-2 m-2"
-          />
+          <mdb-row>
+            <mdb-col col="9">
+              <mdb-input
+                v-model="value"
+                label="Search..."
+                size="lg"
+                class="p-2 m-2"
+                @change="loadArticles"
+              />
+            </mdb-col>
+            <mdb-col col="1">
+              <button
+                type="button"
+                class="btn btn-primary btn-lg m-0"
+                @click="helpModal = true"
+              >
+                <mdb-icon icon="question" />
+              </button>
+            </mdb-col>
+            <mdb-col col="2">
+              <mdb-dropdown>
+                <mdb-dropdown-toggle slot="toggle" color="primary"
+                  >Sort By</mdb-dropdown-toggle
+                >
+                <mdb-dropdown-menu color="primary">
+                  <mdb-dropdown-item>Action</mdb-dropdown-item>
+                  <mdb-dropdown-item>Another action</mdb-dropdown-item>
+                  <mdb-dropdown-item>Something else here</mdb-dropdown-item>
+                  <div class="dropdown-divider"></div>
+                  <mdb-dropdown-item>Separated link</mdb-dropdown-item>
+                </mdb-dropdown-menu>
+              </mdb-dropdown>
+            </mdb-col>
+          </mdb-row>
         </mdb-card>
       </mdb-col>
       <mdb-col col="2">
         <mdb-card class="text-center">
           <mdb-row>
-            <mdb-col>
+            <mdb-col class="p-2">
               Results
             </mdb-col>
-            <mdb-col>
+            <mdb-col class="p-2">
               {{ articles_count }}
             </mdb-col>
           </mdb-row>
@@ -30,28 +57,49 @@
         <mdb-spinner />
       </mdb-col>
     </mdb-row>
-    <mdb-row v-else v-for="article in articles" :key="article.Id" class="item">
+    <mdb-row
+      v-for="article in articles"
+      v-else
+      :key="article.Id"
+      ref="content"
+      class="item"
+    >
       <mdb-col col="12">
         <mdb-card class="mt-2">
           <mdb-card-body cascade>
             <mdb-row>
               <mdb-col col="8">
-                <mdb-card-title
-                  ><strong>
-                    <text-highlight :queries="value">
-                      {{ article.Title }}
-                    </text-highlight>
-                  </strong></mdb-card-title
+                <mdb-icon icon="lock" />
+                <a href="https://doi.com/">
+                  <mdb-card-title
+                    ><strong>
+                      <text-highlight v-if="query" :queries="query">
+                        {{ article.Title }}
+                      </text-highlight>
+                      <div v-else>
+                        {{ article.Title }}
+                      </div>
+                    </strong></mdb-card-title
+                  >
+                </a>
+                <a
+                  href="#!"
+                  @click="value = 'Authors:&quot;' + article.Authors + '&quot;'"
                 >
-                <a href="#!" @click="value = article.Authors">
                   {{ article.Authors }}
                 </a>
                 |
-                <a href="#!" @click="value = article.Year">
+                <a
+                  href="#!"
+                  @click="value = 'Year:&quot;' + article.Year + '&quot;'"
+                >
                   {{ article.Year }}
                 </a>
                 |
-                <a href="#!" @click="value = article.Source">
+                <a
+                  href="#!"
+                  @click="value = 'Source:&quot;' + article.Source + '&quot;'"
+                >
                   {{ article.Source }}
                 </a>
                 <mdb-card-text>{{ article.Abstract }}</mdb-card-text>
@@ -94,15 +142,30 @@
                     <strong>Share</strong>
                   </mdb-col>
                   <mdb-col col="6">
-                    <a class="px-2 fa-lg li-ic">
-                      <mdb-icon fab icon="linkedin"
-                    /></a>
-                    <a class="px-2 fa-lg tw-ic">
-                      <mdb-icon fab icon="twitter"
-                    /></a>
-                    <a class="px-2 fa-lg fb-ic">
-                      <mdb-icon fab icon="facebook"
-                    /></a>
+                    <ShareNetwork
+                      network="linkedin"
+                      url="https://google.com"
+                      title="test"
+                      class="px-2 fa-lg li-ic"
+                    >
+                      <mdb-icon fab icon="linkedin" />
+                    </ShareNetwork>
+                    <ShareNetwork
+                      network="twitter"
+                      url="https://google.com"
+                      title="test"
+                      class="px-2 fa-lg li-ic"
+                    >
+                      <mdb-icon fab icon="twitter" />
+                    </ShareNetwork>
+                    <ShareNetwork
+                      network="facebook"
+                      url="https://google.com"
+                      title="test"
+                      class="px-2 fa-lg li-ic"
+                    >
+                      <mdb-icon fab icon="facebook" />
+                    </ShareNetwork>
                   </mdb-col>
                 </mdb-row>
                 <mdb-row class="mt-2">
@@ -120,9 +183,6 @@
                       Citation
                     </button>
                   </mdb-col>
-                  <mdb-col col="4" class="text-center" v-html="article.OA">
-                    {{ article.OA }}
-                  </mdb-col>
                 </mdb-row>
               </mdb-col>
             </mdb-row>
@@ -130,13 +190,50 @@
         </mdb-card>
       </mdb-col>
     </mdb-row>
+    <mdb-row>
+      <mdb-col col="12">
+        <paginate
+          :page-count="10"
+          :click-handler="loadArticles"
+          :prev-text="'Prev'"
+          :next-text="'Next'"
+          :container-class="'pagination'"
+          :page-class="'page-item'"
+        >
+        </paginate>
+      </mdb-col>
+    </mdb-row>
+
     <mdb-modal :show="modal" :centered="true" @close="modal = false">
       <mdb-modal-header />
-      <mdb-modal-body v-html="citation_content">{{
-        citation_content
-      }}</mdb-modal-body>
+      <mdb-modal-body>
+        <mdb-input type="textarea" :value="citation_content" rows="6" />
+      </mdb-modal-body>
       <mdb-modal-footer>
         <mdb-btn v-mdb-clipboard="citation_content">Copy</mdb-btn>
+      </mdb-modal-footer>
+    </mdb-modal>
+
+    <mdb-modal
+      remove-backdrop
+      :show="helpModal"
+      class="navbar-offset"
+      @close="helpModal = false"
+    >
+      <mdb-modal-header>
+        <mdb-modal-title>Search Queries</mdb-modal-title>
+      </mdb-modal-header>
+      <mdb-modal-body>
+        Title:keyword | Title:"multiple keywords"<br />
+        Abstract:keyword | Abstract:"multiple keywords"<br />
+        Authors:keyword | Authors:"multiple keywords"<br />
+        Source:keyword | Source:"multiple keywords"<br />
+        Subject:keyword | Subject:"multiple keywords"<br />
+        Year:from year<br />
+        Citations:minimum count<br />
+      </mdb-modal-body>
+      <mdb-modal-footer>
+        <mdb-btn @click.native="helpModal = false">Close</mdb-btn>
       </mdb-modal-footer>
     </mdb-modal>
   </mdb-container>
@@ -158,13 +255,18 @@ import {
   mdbModalHeader,
   mdbModalBody,
   mdbModalFooter,
-  mdbInfiniteScroll,
   mdbClipboard,
-  mdbSpinner
+  mdbSpinner,
+  mdbDropdown,
+  mdbDropdownItem,
+  mdbDropdownMenu,
+  mdbDropdownToggle
 } from 'mdbvue'
 import Cite from 'citation-js'
 import TextHighlight from 'vue-text-highlight'
 import _ from 'lodash'
+import JsPDF from 'jspdf'
+import Paginate from 'vuejs-paginate'
 
 export default {
   name: 'ListOfValues',
@@ -184,70 +286,114 @@ export default {
     mdbModalBody,
     mdbModalFooter,
     TextHighlight,
-    mdbSpinner
+    mdbSpinner,
+    Paginate,
+    mdbDropdown,
+    mdbDropdownItem,
+    mdbDropdownMenu,
+    mdbDropdownToggle
   },
-  directives: { mdbInfiniteScroll, mdbClipboard },
-  async fetch() {
-    const data = await this.$axios.$get('/articles', {
-      params: {
-        _limit: 10,
-        Abstract_contains: this.value,
-        Title_contains: this.value
-      }
-    })
-    const count = await this.$axios.$get('/articles/count', {
-      params: {
-        Abstract_contains: this.value,
-        Title_contains: this.value
-      }
-    })
-    this.articles_count = count
-    this.articles = data
-  },
-  fetchOnServer: false,
+  directives: { mdbClipboard },
   data(context) {
     return {
       value: '',
+      query: '',
       modal: false,
+      helpModal: false,
       citation_content: '',
       articles: [],
       articles_count: 0,
       loading: false
     }
   },
+  mounted() {
+    this.loadArticles()
+  },
+  fetchOnServer: false,
   methods: {
+    download() {
+      const doc = new JsPDF()
+      const contentHtml = this.$refs.content.innerHTML
+      doc.fromHTML(contentHtml, 15, 15, {
+        width: 170
+      })
+      doc.save('sample.pdf')
+    },
     async citation(url) {
-      this.loading = true
       const doi = url.match(/href=".*?\?url=(.*?)"/)
       const cite = await Cite.async(doi[1])
       this.modal = true
       this.citation_content = cite.format('bibliography', {
-        format: 'html',
+        format: 'text',
         template: 'apa',
         lang: 'en-US'
       })
-      this.loading = false
     },
-    loadArticles: _.debounce(async function(e) {
+    loadArticles: _.debounce(async function(page) {
+      if (this.query === this.value) {
+        return
+      }
+
+      const fields = {
+        Citations: 'Citations_gt',
+        Title: 'Title_contains',
+        Abstract: 'Abstract_contains',
+        Authors: 'Authors_contains',
+        Source: 'Source_contains',
+        Type: 'Type_contains',
+        Subject: 'Subject_contains',
+        Year: 'Year_gt'
+      }
+
+      const matches = this.value.match(/\\?.|^$/g).reduce(
+        (p, c) => {
+          if (c === '"') {
+            p.quote ^= 1
+          } else if (!p.quote && c === ' ') {
+            p.a.push('')
+          } else {
+            p.a[p.a.length - 1] += c.replace(/\\(.)/, '$1')
+          }
+          return p
+        },
+        { a: [''] }
+      ).a
+
+      const limit = 20
+      const start = page * 10 || 0
+      let queryString = ''
+      const myParams = {
+        _limit: limit,
+        _start: start
+      }
+
+      if (matches && matches.length) {
+        matches.forEach((match) => {
+          const fieldValue = match.split(':')
+
+          if (fieldValue[1] && fieldValue[0] in fields) {
+            myParams[fields[fieldValue[0]]] = fieldValue[1]
+          } else {
+            queryString += fieldValue[0]
+          }
+        })
+      }
+
+      myParams.Abstract_contains = myParams.Abstract_contains || queryString
+      myParams.Title_contains = myParams.Title_contains || queryString
+
+      this.query = this.value
       this.loading = true
       const data = await this.$axios.$get('/articles', {
-        params: {
-          _limit: 10,
-          Abstract_contains: this.value,
-          Title_contains: this.value
-        }
+        params: myParams
       })
       const count = await this.$axios.$get('/articles/count', {
-        params: {
-          Abstract_contains: this.value,
-          Title_contains: this.value
-        }
+        params: myParams
       })
-      // this.articles.push(data)
       this.articles_count = count
       this.articles = data
       this.loading = false
-    }, 500)
+    }, 1500)
   }
 }
 </script>

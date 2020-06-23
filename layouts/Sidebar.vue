@@ -2,15 +2,15 @@
   <mdb-side-nav-2
     :value="sidebarVisible"
     :data="displaySidebarItems"
-    :slimCollapsed="sidebarSlim"
-    @toggleSlim="setSidebarVisibility"
-    slim
+    :slim-collapsed="sidebarSlim"
     groups
-    :backdrop="false"
+    slim
     :width="350"
     :duration="0"
     sidenav-class="white text-left sidebar h-100"
+    :backdrop="false"
     color="grey-text"
+    @toggleSlim="setSidebarVisibility"
   >
     <template slot="nav">
       <slot name="nav"></slot>
@@ -66,17 +66,17 @@ export default {
             {
               name: 'List View',
               icon: 'list-alt',
-              to: '/corruption-client/list'
+              to: '/list'
             },
             {
               name: 'Table View',
               icon: 'table',
-              href: '/corruption-client/table'
+              to: '/table'
             },
             {
               name: 'Visualization',
               icon: 'chart-bar',
-              href: '/corruption-client/visual'
+              to: '/visual'
             }
           ]
         }
@@ -88,7 +88,7 @@ export default {
 
 <style>
 .sidebar {
-  margin-top: 20px;
+  margin-top: 80px;
 }
 
 #app div.mdbvue-sidenav {

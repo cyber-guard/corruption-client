@@ -39,7 +39,10 @@ export default {
    */
   buildModules: [
     // Doc: https://github.com/nuxt-community/eslint-module
-    '@nuxtjs/eslint-module'
+    '@nuxtjs/eslint-module',
+    ['@nuxtjs/google-analytics', {
+      id: 'UA-103575743-1'
+    }]
   ],
   /*
    ** Nuxt.js modules
@@ -51,7 +54,8 @@ export default {
     '@nuxtjs/dotenv',
     'mdbvue/nuxt',
     '@nuxtjs/axios',
-    '@nuxtjs/markdownit'
+    '@nuxtjs/markdownit',
+    'vue-social-sharing/nuxt'
   ],
   markdownit: {
     html: true,
