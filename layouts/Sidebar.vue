@@ -69,11 +69,6 @@ export default {
               to: '/list'
             },
             {
-              name: 'Table View',
-              icon: 'table',
-              to: '/table'
-            },
-            {
               name: 'Visualization',
               icon: 'chart-bar',
               to: '/visual'

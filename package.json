@@ -1,7 +1,7 @@
 {
   "name": "client",
   "version": "1.0.0",
-  "description": "Corruption app client",
+  "description": "A comprehensive database of (anti-)corruption articles, including abstracts and links to sources",
   "author": "Simon Vlcek",
   "private": true,
   "scripts": {

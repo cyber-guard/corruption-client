@@ -6,14 +6,14 @@
           <mdb-row>
             <mdb-col col="9">
               <mdb-input
-                v-model="value"
+                v-model.lazy="value"
                 label="Search..."
                 size="lg"
                 class="p-2 m-2"
                 @change="loadArticles"
               />
             </mdb-col>
-            <mdb-col col="1">
+            <mdb-col class="d-flex align-items-stretch" col="1">
               <button
                 type="button"
                 class="btn btn-primary btn-lg m-0"
@@ -28,7 +28,9 @@
                   >Sort By</mdb-dropdown-toggle
                 >
                 <mdb-dropdown-menu color="primary">
-                  <mdb-dropdown-item>Action</mdb-dropdown-item>
+                  <mdb-dropdown-item @click="sort = 'Year:desc'"
+                    >Action</mdb-dropdown-item
+                  >
                   <mdb-dropdown-item>Another action</mdb-dropdown-item>
                   <mdb-dropdown-item>Something else here</mdb-dropdown-item>
                   <div class="dropdown-divider"></div>
@@ -69,8 +71,8 @@
           <mdb-card-body cascade>
             <mdb-row>
               <mdb-col col="8">
-                <mdb-icon icon="lock" />
-                <a href="https://doi.com/">
+                <a class="d-inline-flex" href="https://doi.com/">
+                  <mdb-icon class="mt-1" icon="lock" />
                   <mdb-card-title
                     ><strong>
                       <text-highlight v-if="query" :queries="query">
@@ -82,6 +84,7 @@
                     </strong></mdb-card-title
                   >
                 </a>
+                <br />
                 <a
                   href="#!"
                   @click="value = 'Authors:&quot;' + article.Authors + '&quot;'"
@@ -104,7 +107,7 @@
                 </a>
                 <mdb-card-text>{{ article.Abstract }}</mdb-card-text>
               </mdb-col>
-              <mdb-col col="4">
+              <mdb-col col="4" class="text-right">
                 <mdb-row>
                   <mdb-col col="6">
                     <strong>Subject</strong>
@@ -144,24 +147,24 @@
                   <mdb-col col="6">
                     <ShareNetwork
                       network="linkedin"
-                      url="https://google.com"
-                      title="test"
+                      :url="url"
+                      :title="article.Title"
                       class="px-2 fa-lg li-ic"
                     >
                       <mdb-icon fab icon="linkedin" />
                     </ShareNetwork>
                     <ShareNetwork
                       network="twitter"
-                      url="https://google.com"
-                      title="test"
+                      :url="url"
+                      :title="article.Title"
                       class="px-2 fa-lg li-ic"
                     >
                       <mdb-icon fab icon="twitter" />
                     </ShareNetwork>
                     <ShareNetwork
                       network="facebook"
-                      url="https://google.com"
-                      title="test"
+                      :url="url"
+                      :title="article.Title"
                       class="px-2 fa-lg li-ic"
                     >
                       <mdb-icon fab icon="facebook" />
@@ -169,12 +172,12 @@
                   </mdb-col>
                 </mdb-row>
                 <mdb-row class="mt-2">
-                  <mdb-col col="4" class="text-center">
+                  <mdb-col col class="text-right">
                     <mdb-btn tag="a" gradient="blue"
                       ><mdb-icon icon="unlock-alt"
                     /></mdb-btn>
                   </mdb-col>
-                  <mdb-col col="4" class="text-center">
+                  <mdb-col col class="text-right">
                     <button
                       class="btn btn-primary"
                       :disabled="loading"
@@ -193,7 +196,7 @@
     <mdb-row>
       <mdb-col col="12">
         <paginate
-          :page-count="10"
+          :page-count="articles_count / 20"
           :click-handler="loadArticles"
           :prev-text="'Prev'"
           :next-text="'Next'"
@@ -294,6 +297,9 @@ export default {
     mdbDropdownToggle
   },
   directives: { mdbClipboard },
+  fetch() {
+    this.loadArticles()
+  },
   data(context) {
     return {
       value: '',
@@ -303,11 +309,10 @@ export default {
       citation_content: '',
       articles: [],
       articles_count: 0,
+      sort: '',
+      url: 'https://cyber-guard.github.io/corruption-client/',
       loading: false
     }
-  },
-  mounted() {
-    this.loadArticles()
   },
   fetchOnServer: false,
   methods: {
@@ -330,19 +335,15 @@ export default {
       })
     },
     loadArticles: _.debounce(async function(page) {
-      if (this.query === this.value) {
-        return
-      }
-
       const fields = {
-        Citations: 'Citations_gt',
+        Citations: 'Citations_gte',
         Title: 'Title_contains',
         Abstract: 'Abstract_contains',
         Authors: 'Authors_contains',
         Source: 'Source_contains',
         Type: 'Type_contains',
         Subject: 'Subject_contains',
-        Year: 'Year_gt'
+        Year: 'Year_gte'
       }
 
       const matches = this.value.match(/\\?.|^$/g).reduce(
@@ -361,10 +362,12 @@ export default {
 
       const limit = 20
       const start = page * 10 || 0
+      const sort = this.sort || 'Year:desc'
       let queryString = ''
       const myParams = {
         _limit: limit,
-        _start: start
+        _start: start,
+        _sort: sort
       }
 
       if (matches && matches.length) {
@@ -393,7 +396,8 @@ export default {
       this.articles_count = count
       this.articles = data
       this.loading = false
-    }, 1500)
+      this.$router.push({ query: { q: this.value } })
+    }, 500)
   }
 }
 </script>
