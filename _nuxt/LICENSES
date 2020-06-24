@@ -1,3 +1,10 @@
+/* @license
+Papa Parse
+v5.1.1
+https://github.com/mholt/PapaParse
+License: MIT
+*/
+
 /*!
    * perfect-scrollbar v1.4.0
    * (c) 2018 Hyunje Jun
@@ -109,6 +116,12 @@
    * 
    * ====================================================================
    */
+
+/**
+  * vue-class-component v7.0.1
+  * (c) 2015-present Evan You
+  * @license MIT
+  */
 
 /**
  * @license
