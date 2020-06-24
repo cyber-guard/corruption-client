@@ -1,17 +1,28 @@
 <template>
   <mdb-side-nav-2
     :value="sidebarVisible"
-    :data="displaySidebarItems"
-    :slim-collapsed="sidebarSlim"
-    groups
-    slim
     :width="350"
     :duration="0"
     sidenav-class="white text-left sidebar h-100"
     :backdrop="false"
     color="grey-text"
-    @toggleSlim="setSidebarVisibility"
   >
+    <div slot="content">
+      <div class="mt-2">
+        <mdb-input v-model="title" label="Title" size="sm" />
+        <mdb-input v-model="abstract" label="Abstract" size="sm" />
+        <mdb-input v-model="authors" label="Authors" size="sm" />
+        <mdb-input v-model="source" label="Source" size="sm" />
+        <mdb-input v-model="type" label="Type" size="sm" />
+        <mdb-input v-model="keywords" label="Keywords" size="sm" />
+        Year
+        <vue-slider class="mx-2" v-model="year" v-bind="options" />
+        Citations
+        <vue-slider class="mx-2" v-model="citations" v-bind="options" />
+        <mdb-btn color="primary" @click="searchQuery">Search</mdb-btn>
+        <mdb-btn color="grey">Reset</mdb-btn>
+      </div>
+    </div>
     <template slot="nav">
       <slot name="nav"></slot>
     </template>
@@ -22,12 +33,17 @@
 </template>
 
 <script>
-import { mdbSideNav2 } from 'mdbvue'
+import { mdbSideNav2, mdbInput, mdbBtn } from 'mdbvue'
 import { mapState } from 'vuex'
+import VueSlider from 'vue-slider-component'
+import 'vue-slider-component/theme/antd.css'
 
 export default {
   components: {
-    mdbSideNav2
+    mdbSideNav2,
+    mdbInput,
+    mdbBtn,
+    VueSlider
   },
   computed: {
     ...mapState({
@@ -51,31 +67,62 @@ export default {
   methods: {
     setSidebarVisibility(slim) {
       this.$store.dispatch('ui/setSidebarSlim', slim)
+    },
+    searchQuery() {
+      let totalQuery = ''
+      totalQuery = this.title
+        ? totalQuery + `Title:"${this.title}" `
+        : totalQuery
+      totalQuery = this.abstract
+        ? totalQuery + `Abstract:"${this.abstract}" `
+        : totalQuery
+      totalQuery = this.authors
+        ? totalQuery + `Authors:"${this.authors}" `
+        : totalQuery
+      totalQuery = this.source
+        ? totalQuery + `Source:"${this.source}" `
+        : totalQuery
+      totalQuery = this.type ? totalQuery + `Type:"${this.type}" ` : totalQuery
+      totalQuery = this.keywords
+        ? totalQuery + `Keywords:"${this.keywords}" `
+        : totalQuery
+      this.$router.push({ name: 'list', query: { q: totalQuery } })
     }
   },
   data() {
     return {
-      groupsContent: [
-        {
-          data: [
-            {
-              name: 'Home',
-              icon: 'home',
-              to: '/'
-            },
-            {
-              name: 'List View',
-              icon: 'list-alt',
-              to: '/list'
-            },
-            {
-              name: 'Visualization',
-              icon: 'chart-bar',
-              to: '/visual'
-            }
-          ]
-        }
-      ]
+      title: '',
+      abstract: '',
+      citations: 1,
+      year: [1900, 2020],
+      options: {
+        dotSize: 14,
+        width: 'auto',
+        height: 10,
+        contained: false,
+        direction: 'ltr',
+        min: 1900,
+        max: 2020,
+        interval: 1,
+        disabled: false,
+        clickable: true,
+        duration: 0.5,
+        adsorb: false,
+        lazy: false,
+        tooltip: 'active',
+        tooltipPlacement: 'top',
+        tooltipFormatter: 0,
+        useKeyboard: false,
+        keydownHook: null,
+        dragOnClick: false,
+        enableCross: true,
+        fixed: false,
+        minRange: 0,
+        maxRange: 0,
+        order: true,
+        marks: false,
+        process: true
+      }
     }
   }
 }
@@ -92,7 +139,5 @@ export default {
 
 .mdbvue-sidenav * {
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 </style>

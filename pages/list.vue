@@ -4,16 +4,15 @@
       <mdb-col col="10">
         <mdb-card>
           <mdb-row>
-            <mdb-col col="9">
+            <mdb-col col="">
               <mdb-input
                 v-model.lazy="value"
                 label="Search..."
-                size="lg"
                 class="p-2 m-2"
                 @change="loadArticles"
               />
             </mdb-col>
-            <mdb-col class="d-flex align-items-stretch" col="1">
+            <mdb-col class="d-flex align-items-stretch" col="auto">
               <button
                 type="button"
                 class="btn btn-primary btn-lg m-0"
@@ -22,27 +21,17 @@
                 <mdb-icon icon="question" />
               </button>
             </mdb-col>
-            <mdb-col col="2">
-              <mdb-dropdown>
-                <mdb-dropdown-toggle slot="toggle" color="primary"
-                  >Sort By</mdb-dropdown-toggle
-                >
-                <mdb-dropdown-menu color="primary">
-                  <mdb-dropdown-item @click="sort = 'Year:desc'"
-                    >Action</mdb-dropdown-item
-                  >
-                  <mdb-dropdown-item>Another action</mdb-dropdown-item>
-                  <mdb-dropdown-item>Something else here</mdb-dropdown-item>
-                  <div class="dropdown-divider"></div>
-                  <mdb-dropdown-item>Separated link</mdb-dropdown-item>
-                </mdb-dropdown-menu>
-              </mdb-dropdown>
+            <mdb-col class="d-flex align-items-stretch" col="auto">
+              <json-CSV :data="articles" class="btn btn-primary btn-lg m-0">
+                <mdb-icon icon="file-csv" />
+                Export page
+              </json-CSV>
             </mdb-col>
           </mdb-row>
         </mdb-card>
       </mdb-col>
-      <mdb-col col="2">
-        <mdb-card class="text-center">
+      <mdb-col col="2" class="d-flex align-items-stretch">
+        <mdb-card class="text-center" style="width: 100%">
           <mdb-row>
             <mdb-col class="p-2">
               Results
@@ -71,8 +60,10 @@
           <mdb-card-body cascade>
             <mdb-row>
               <mdb-col col="8">
-                <a class="d-inline-flex" href="https://doi.com/">
-                  <mdb-icon class="mt-1" icon="lock" />
+                <a
+                  class="d-inline-flex"
+                  :href="'https://doi.org/' + article.doi"
+                >
                   <mdb-card-title
                     ><strong>
                       <text-highlight v-if="query" :queries="query">
@@ -105,7 +96,14 @@
                 >
                   {{ article.Source }}
                 </a>
-                <mdb-card-text>{{ article.Abstract }}</mdb-card-text>
+                <mdb-card-text>
+                  <text-highlight v-if="query" :queries="query">
+                    {{ article.Abstract }}
+                  </text-highlight>
+                  <div v-else>
+                    {{ article.Title }}
+                  </div>
+                </mdb-card-text>
               </mdb-col>
               <mdb-col col="4" class="text-right">
                 <mdb-row>
@@ -137,7 +135,7 @@
                     <strong>Keywords</strong>
                   </mdb-col>
                   <mdb-col col="6">
-                    N/A
+                    {{ article.keywords }}
                   </mdb-col>
                 </mdb-row>
                 <mdb-row class="mt-2">
@@ -173,9 +171,12 @@
                 </mdb-row>
                 <mdb-row class="mt-2">
                   <mdb-col col class="text-right">
-                    <mdb-btn tag="a" gradient="blue"
-                      ><mdb-icon icon="unlock-alt"
-                    /></mdb-btn>
+                    <mdb-btn
+                      tag="a"
+                      gradient="blue"
+                      :href="'https://openaccessbutton.org/?id=' + article.doi"
+                      >Open <mdb-icon icon="unlock-alt" /> Access</mdb-btn
+                    >
                   </mdb-col>
                   <mdb-col col class="text-right">
                     <button
@@ -207,10 +208,21 @@
       </mdb-col>
     </mdb-row>
 
-    <mdb-modal :show="modal" :centered="true" @close="modal = false">
+    <mdb-modal :show="modal" :centered="true" @close="modal = false" size="lg">
       <mdb-modal-header />
       <mdb-modal-body>
         <mdb-input type="textarea" :value="citation_content" rows="6" />
+        <mdb-btn color="primary" @click="citeFormat('citation', 'vacouver')"
+          >Vancouver</mdb-btn
+        >
+        <mdb-btn color="primary" @click="citeFormat('citation', 'apa')"
+          >APA</mdb-btn
+        >
+        <mdb-btn color="primary" @click="citeFormat('bibtex')">BibTex</mdb-btn>
+        <mdb-btn color="primary" @click="citeFormat('label', 'apa')"
+          >RIS</mdb-btn
+        >
+        <mdb-btn color="primary" @click="citeFormat('data')">JSON</mdb-btn>
       </mdb-modal-body>
       <mdb-modal-footer>
         <mdb-btn v-mdb-clipboard="citation_content">Copy</mdb-btn>
@@ -259,17 +271,14 @@ import {
   mdbModalBody,
   mdbModalFooter,
   mdbClipboard,
-  mdbSpinner,
-  mdbDropdown,
-  mdbDropdownItem,
-  mdbDropdownMenu,
-  mdbDropdownToggle
+  mdbSpinner
 } from 'mdbvue'
 import Cite from 'citation-js'
 import TextHighlight from 'vue-text-highlight'
 import _ from 'lodash'
 import JsPDF from 'jspdf'
 import Paginate from 'vuejs-paginate'
+import JsonCSV from 'vue-json-csv'
 
 export default {
   name: 'ListOfValues',
@@ -291,10 +300,7 @@ export default {
     TextHighlight,
     mdbSpinner,
     Paginate,
-    mdbDropdown,
-    mdbDropdownItem,
-    mdbDropdownMenu,
-    mdbDropdownToggle
+    JsonCSV
   },
   directives: { mdbClipboard },
   fetch() {
@@ -302,10 +308,14 @@ export default {
   },
   data(context) {
     return {
-      value: '',
+      value:
+        this.$route.query.q && this.$route.query.q !== ''
+          ? this.$route.query.q
+          : '',
       query: '',
       modal: false,
       helpModal: false,
+      citationObj: '',
       citation_content: '',
       articles: [],
       articles_count: 0,
@@ -315,6 +325,7 @@ export default {
     }
   },
   fetchOnServer: false,
+  watchQuery: ['q'],
   methods: {
     download() {
       const doc = new JsPDF()
@@ -324,10 +335,23 @@ export default {
       })
       doc.save('sample.pdf')
     },
+    citeFormat(format, template) {
+      const options = {
+        format: 'text',
+        lang: 'en-US'
+      }
+
+      if (template) {
+        options.template = template
+      }
+
+      this.citation_content = this.citationObj.format(format, options)
+    },
     async citation(url) {
       const doi = url.match(/href=".*?\?url=(.*?)"/)
       const cite = await Cite.async(doi[1])
       this.modal = true
+      this.citationObj = cite
       this.citation_content = cite.format('bibliography', {
         format: 'text',
         template: 'apa',
@@ -396,7 +420,6 @@ export default {
       this.articles_count = count
       this.articles = data
       this.loading = false
-      this.$router.push({ query: { q: this.value } })
     }, 500)
   }
 }
@@ -404,5 +427,10 @@ export default {
 <style>
 .navbar-offset {
   margin-top: 100px !important;
+}
+
+.md-form {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
 }
 </style>

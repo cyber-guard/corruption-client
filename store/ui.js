@@ -30,15 +30,6 @@ export default {
     },
     setSidebarVisibility({ commit }, isVisible) {
       commit('setSidebarVisibility', isVisible)
-    },
-    setRouteSidebarItems({ commit }, items) {
-      commit('setRouteSidebarItems', items)
-    },
-    setClientInformationVisible({ commit }, isVisible) {
-      commit('setClientInformationVisible', isVisible)
-    },
-    setClientRelationshipsLeadsVisible({ commit }, isVisible) {
-      commit('setClientRelationshipsLeadsVisible', isVisible)
     }
   },
   getters: {}

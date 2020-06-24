@@ -1,29 +1,33 @@
 <template>
   <div class="container">
-    <div>
-      <h1>
-        The (Anti-)Corruption Corpus for Corruption Researchers &amp;
-        Practitioners
-      </h1>
-      <h3 class="subtitle">
-        A comprehensive database of (anti-)corruption articles, including
-        abstracts and links to sources
-      </h3>
-    </div>
+    <mdb-card>
+      <mdb-card-text class="p-5" v-html="content"></mdb-card-text>
+    </mdb-card>
   </div>
 </template>
 
 <script>
-export default {}
+import { mdbCard, mdbCardText } from 'mdbvue'
+
+export default {
+  name: 'Home',
+  components: {
+    mdbCard,
+    mdbCardText
+  },
+  async asyncData({ $axios }) {
+    const { data } = await $axios.get('/home')
+    return { content: data.Content }
+  }
+}
 </script>
 
 <style>
 .container {
   margin: 0 auto;
-  min-height: 90vh;
+  min-height: 50vh;
   display: flex;
   justify-content: center;
-  align-items: center;
   text-align: center;
 }
 

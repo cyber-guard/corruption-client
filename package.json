@@ -21,10 +21,13 @@
     "citation-js": "^0.5.0-alpha.5",
     "gh-pages": "^2.2.0",
     "html2canvas": "^1.0.0-rc.5",
+    "jsonexport": "^3.0.1",
     "jspdf": "^1.5.3",
     "lodash": "^4.17.15",
     "mdbvue": "git+https://oauth2:Roh-217F9TAvwAAxjAre@git.mdbootstrap.com/mdb/vue/vu-pro.git",
     "nuxt": "^2.0.0",
+    "vue-json-csv": "^1.2.11",
+    "vue-slider-component": "^3.1.5",
     "vue-social-sharing": "^3.0.0-beta.11",
     "vue-text-highlight": "^2.0.10",
     "vuejs-paginate": "^2.1.0"

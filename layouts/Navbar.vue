@@ -27,6 +27,19 @@
         <mdb-nav-item to="/methodology">Methodology</mdb-nav-item>
         <mdb-nav-item to="/list">View data</mdb-nav-item>
       </mdb-navbar-nav>
+      <mdb-form-inline>
+        <mdb-input
+          v-model="topQuery"
+          class="mr-sm-2"
+          type="text"
+          placeholder="Search"
+          aria-label="Search"
+          style="width: 250px"
+        />
+        <mdb-btn outline="primary" class="my-0" size="sm" @click="searchQuery"
+          >Search</mdb-btn
+        >
+      </mdb-form-inline>
     </mdb-navbar-toggler>
   </mdb-navbar>
 </template>
@@ -39,7 +52,9 @@ import {
   mdbNavItem,
   mdbNavbarBrand,
   mdbBtn,
-  mdbIcon
+  mdbIcon,
+  mdbInput,
+  mdbFormInline
 } from 'mdbvue'
 
 import { mapState } from 'vuex'
@@ -52,7 +67,9 @@ export default {
     mdbNavItem,
     mdbNavbarBrand,
     mdbBtn,
-    mdbIcon
+    mdbIcon,
+    mdbInput,
+    mdbFormInline
   },
   computed: {
     ...mapState({
@@ -61,11 +78,16 @@ export default {
   },
   methods: {
     toggleSidebar() {
-      this.$store.dispatch('ui/setSidebarSlim', !this.slimIsCollapsed)
+      this.$store.dispatch('ui/setSidebarVisibility', !this.slimIsCollapsed)
+    },
+    searchQuery() {
+      this.$router.push({ name: 'list', query: { q: this.topQuery } })
     }
   },
   data() {
-    return {}
+    return {
+      topQuery: ''
+    }
   }
 }
 </script>
