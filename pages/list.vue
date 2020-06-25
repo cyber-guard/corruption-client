@@ -101,7 +101,7 @@
                     {{ article.Abstract }}
                   </text-highlight>
                   <div v-else>
-                    {{ article.Title }}
+                    {{ article.Abstract }}
                   </div>
                 </mdb-card-text>
               </mdb-col>
