@@ -16,11 +16,11 @@
         <mdb-input v-model="type" label="Type" size="sm" />
         <mdb-input v-model="keywords" label="Keywords" size="sm" />
         Year
-        <vue-slider class="mx-2" v-model="year" v-bind="options" />
+        <vue-slider class="mx-2" v-model="year" v-bind="optionsYear" />
         Citations
-        <vue-slider class="mx-2" v-model="citations" v-bind="options" />
+        <vue-slider class="mx-2" v-model="citations" v-bind="optionsCit" />
         <mdb-btn color="primary" @click="searchQuery">Search</mdb-btn>
-        <mdb-btn color="grey">Reset</mdb-btn>
+        <mdb-btn color="grey" @click="resetQuery">Reset</mdb-btn>
       </div>
     </div>
     <template slot="nav">
@@ -86,23 +86,65 @@ export default {
       totalQuery = this.keywords
         ? totalQuery + `Keywords:"${this.keywords}" `
         : totalQuery
+
+      totalQuery = totalQuery + `Years:${this.year[0]}-${this.year[1]} `
+      totalQuery = totalQuery + `Citations:${this.citations} `
       this.$router.push({ name: 'list', query: { q: totalQuery } })
+    },
+    resetQuery() {
+      this.title = ''
+      this.abstract = ''
+      this.authors = ''
+      this.source = ''
+      this.type = ''
+      this.keywords = ''
+      this.this.year = [1900, 2020]
+      this.citations = 10
+      this.$router.push({ name: 'list' })
     }
   },
   data() {
     return {
       title: '',
       abstract: '',
-      citations: 1,
+      citations: 10,
       year: [1900, 2020],
-      options: {
+      optionsYear: {
+        min: 1900,
+        max: 2020,
         dotSize: 14,
         width: 'auto',
         height: 10,
         contained: false,
         direction: 'ltr',
-        min: 1900,
-        max: 2020,
+        interval: 1,
+        disabled: false,
+        clickable: true,
+        duration: 0.5,
+        adsorb: false,
+        lazy: false,
+        tooltip: 'active',
+        tooltipPlacement: 'top',
+        tooltipFormatter: 0,
+        useKeyboard: false,
+        keydownHook: null,
+        dragOnClick: false,
+        enableCross: true,
+        fixed: false,
+        minRange: 0,
+        maxRange: 0,
+        order: true,
+        marks: false,
+        process: true
+      },
+      optionsCit: {
+        min: 0,
+        max: 1000,
+        dotSize: 14,
+        width: 'auto',
+        height: 10,
+        contained: false,
+        direction: 'ltr',
         interval: 1,
         disabled: false,
         clickable: true,

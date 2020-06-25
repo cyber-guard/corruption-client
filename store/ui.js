@@ -1,8 +1,8 @@
 export default {
   namespaced: true,
   state: {
-    sidebarSlim: true,
-    sidebarVisible: true,
+    sidebarSlim: false,
+    sidebarVisible: false,
     routeSidebarItems: {},
     clientInformationVisible: false,
     clientRelationshipsLeadsVisible: false

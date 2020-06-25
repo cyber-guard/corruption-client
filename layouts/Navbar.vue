@@ -73,12 +73,13 @@ export default {
   },
   computed: {
     ...mapState({
+      sidebarVisible: (state) => state.ui.sidebarVisible,
       slimIsCollapsed: (state) => state.ui.sidebarSlim
     })
   },
   methods: {
     toggleSidebar() {
-      this.$store.dispatch('ui/setSidebarVisibility', !this.slimIsCollapsed)
+      this.$store.dispatch('ui/setSidebarVisibility', !this.sidebarVisible)
     },
     searchQuery() {
       this.$router.push({ name: 'list', query: { q: this.topQuery } })

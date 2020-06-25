@@ -182,7 +182,7 @@
                     <button
                       class="btn btn-primary"
                       :disabled="loading"
-                      @click="citation(article.OA)"
+                      @click="citation(article.doi)"
                     >
                       Citation
                     </button>
@@ -194,15 +194,21 @@
         </mdb-card>
       </mdb-col>
     </mdb-row>
-    <mdb-row>
+    <mdb-row class="my-2">
       <mdb-col col="12">
         <paginate
-          :page-count="articles_count / 20"
+          :page-count="Math.floor(articles_count / 20)"
           :click-handler="loadArticles"
           :prev-text="'Prev'"
           :next-text="'Next'"
           :container-class="'pagination'"
           :page-class="'page-item'"
+          :page-link-class="'page-link'"
+          :prev-class="'page-item'"
+          :next-class="'page-item'"
+          :prev-link-class="'page-link'"
+          :next-link-class="'page-link'"
+          :active-class="'active text-primary primary'"
         >
         </paginate>
       </mdb-col>
@@ -212,16 +218,13 @@
       <mdb-modal-header />
       <mdb-modal-body>
         <mdb-input type="textarea" :value="citation_content" rows="6" />
-        <mdb-btn color="primary" @click="citeFormat('citation', 'vacouver')"
+        <mdb-btn color="primary" @click="citeFormat('citation', 'vancouver')"
           >Vancouver</mdb-btn
         >
         <mdb-btn color="primary" @click="citeFormat('citation', 'apa')"
           >APA</mdb-btn
         >
         <mdb-btn color="primary" @click="citeFormat('bibtex')">BibTex</mdb-btn>
-        <mdb-btn color="primary" @click="citeFormat('label', 'apa')"
-          >RIS</mdb-btn
-        >
         <mdb-btn color="primary" @click="citeFormat('data')">JSON</mdb-btn>
       </mdb-modal-body>
       <mdb-modal-footer>
@@ -306,6 +309,9 @@ export default {
   fetch() {
     this.loadArticles()
   },
+  mounted() {
+    this.$store.dispatch('ui/setSidebarVisibility', true)
+  },
   data(context) {
     return {
       value:
@@ -347,9 +353,8 @@ export default {
 
       this.citation_content = this.citationObj.format(format, options)
     },
-    async citation(url) {
-      const doi = url.match(/href=".*?\?url=(.*?)"/)
-      const cite = await Cite.async(doi[1])
+    async citation(doi) {
+      const cite = await Cite.async(doi)
       this.modal = true
       this.citationObj = cite
       this.citation_content = cite.format('bibliography', {
@@ -367,7 +372,8 @@ export default {
         Source: 'Source_contains',
         Type: 'Type_contains',
         Subject: 'Subject_contains',
-        Year: 'Year_gte'
+        Years: 'Year',
+        Year: 'Year'
       }
 
       const matches = this.value.match(/\\?.|^$/g).reduce(
@@ -399,7 +405,13 @@ export default {
           const fieldValue = match.split(':')
 
           if (fieldValue[1] && fieldValue[0] in fields) {
-            myParams[fields[fieldValue[0]]] = fieldValue[1]
+            if (fieldValue[1].match('-') && fieldValue[0] === 'Years') {
+              const years = fieldValue[1].split('-')
+              myParams.Year_gte = years[0]
+              myParams.Year_lte = years[1]
+            } else {
+              myParams[fields[fieldValue[0]]] = fieldValue[1]
+            }
           } else {
             queryString += fieldValue[0]
           }
