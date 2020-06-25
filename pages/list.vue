@@ -9,7 +9,7 @@
                 v-model.lazy="value"
                 label="Search..."
                 class="p-2 m-2"
-                @change="loadArticles"
+                @input="loadArticles"
               />
             </mdb-col>
             <mdb-col class="d-flex align-items-stretch" col="auto">
@@ -418,7 +418,7 @@ export default {
               myParams[fields[fieldValue[0]]] = fieldValue[1]
             }
           } else {
-            queryString += fieldValue[0]
+            queryString += fieldValue[0] ? fieldValue[0] + ' ' : ''
           }
         })
       }
@@ -427,7 +427,7 @@ export default {
       myParams.Title_contains = myParams.Title_contains || queryString
       // myParams.Keywords_contains = myParams.Keywords_contains || queryString
 
-      this.query = this.value
+      this.query = queryString
       this.loading = true
       const data = await this.$axios.$get('/articles', {
         params: myParams
