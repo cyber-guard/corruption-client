@@ -62,6 +62,7 @@
               <mdb-col col="8">
                 <a
                   class="d-inline-flex"
+                  target="_blank"
                   :href="'https://doi.org/' + article.doi"
                 >
                   <mdb-card-title
@@ -174,6 +175,7 @@
                     <mdb-btn
                       tag="a"
                       gradient="blue"
+                      target="_blank"
                       :href="'https://openaccessbutton.org/?id=' + article.doi"
                       >Open <mdb-icon icon="unlock-alt" /> Access</mdb-btn
                     >
@@ -218,11 +220,13 @@
       <mdb-modal-header />
       <mdb-modal-body>
         <mdb-input type="textarea" :value="citation_content" rows="6" />
-        <mdb-btn color="primary" @click="citeFormat('citation', 'vancouver')"
-          >Vancouver</mdb-btn
-        >
-        <mdb-btn color="primary" @click="citeFormat('citation', 'apa')"
+        <mdb-btn color="primary" @click="citeFormat('bibliography', 'apa')"
           >APA</mdb-btn
+        >
+        <mdb-btn
+          color="primary"
+          @click="citeFormat('bibliography', 'vancouver')"
+          >Vancouver</mdb-btn
         >
         <mdb-btn color="primary" @click="citeFormat('bibtex')">BibTex</mdb-btn>
         <mdb-btn color="primary" @click="citeFormat('data')">JSON</mdb-btn>
@@ -368,6 +372,7 @@ export default {
         Citations: 'Citations_gte',
         Title: 'Title_contains',
         Abstract: 'Abstract_contains',
+        // Keywords: 'Keywords_contains',
         Authors: 'Authors_contains',
         Source: 'Source_contains',
         Type: 'Type_contains',
@@ -420,6 +425,7 @@ export default {
 
       myParams.Abstract_contains = myParams.Abstract_contains || queryString
       myParams.Title_contains = myParams.Title_contains || queryString
+      // myParams.Keywords_contains = myParams.Keywords_contains || queryString
 
       this.query = this.value
       this.loading = true
