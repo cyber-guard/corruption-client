@@ -9,7 +9,7 @@
                 v-model.lazy="value"
                 label="Search..."
                 class="p-2 m-2"
-                @input="loadArticles"
+                @change="loadArticles"
               />
             </mdb-col>
             <mdb-col class="d-flex align-items-stretch" col="auto">
@@ -99,10 +99,10 @@
                 </a>
                 <mdb-card-text>
                   <text-highlight v-if="query" :queries="query">
-                    {{ article.Abstract }}
+                    <div class="text-justify">{{ article.Abstract }}</div>
                   </text-highlight>
                   <div v-else>
-                    {{ article.Abstract }}
+                    <div class="text-justify">{{ article.Abstract }}</div>
                   </div>
                 </mdb-card-text>
               </mdb-col>

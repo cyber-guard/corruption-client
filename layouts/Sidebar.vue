@@ -99,7 +99,7 @@ export default {
       this.type = ''
       this.keywords = ''
       this.this.year = [1900, 2020]
-      this.citations = 10
+      this.citations = 0
       this.$router.push({ name: 'list' })
     }
   },
