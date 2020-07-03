@@ -18,6 +18,9 @@ export default {
   async asyncData({ $axios }) {
     const { data } = await $axios.get('/home')
     return { content: data.Content }
+  },
+  mounted() {
+    this.$store.dispatch('ui/setSidebarVisibility', false)
   }
 }
 </script>

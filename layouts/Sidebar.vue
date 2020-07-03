@@ -98,7 +98,7 @@ export default {
       this.source = ''
       this.type = ''
       this.keywords = ''
-      this.this.year = [1900, 2020]
+      this.year = [1900, 2020]
       this.citations = 0
       this.$router.push({ name: 'list' })
     }
@@ -107,7 +107,11 @@ export default {
     return {
       title: '',
       abstract: '',
-      citations: 10,
+      authors: '',
+      source: '',
+      type: '',
+      keywords: '',
+      citations: 0,
       year: [1900, 2020],
       optionsYear: {
         min: 1900,

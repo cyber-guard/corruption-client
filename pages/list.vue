@@ -98,11 +98,11 @@
                   {{ article.Source }}
                 </a>
                 <mdb-card-text>
-                  <text-highlight v-if="query" :queries="query">
-                    <div class="text-justify">{{ article.Abstract }}</div>
-                  </text-highlight>
-                  <div v-else>
-                    <div class="text-justify">{{ article.Abstract }}</div>
+                  <div class="text-justify">
+                    <text-highlight v-if="query" :queries="query">
+                      {{ article.Abstract }}
+                    </text-highlight>
+                    <div v-else>{{ article.Abstract }}</div>
                   </div>
                 </mdb-card-text>
               </mdb-col>
@@ -199,7 +199,7 @@
     <mdb-row class="my-2">
       <mdb-col col="12">
         <paginate
-          :page-count="Math.floor(articles_count / 20)"
+          :page-count="Math.ceil(articles_count / 20)"
           :click-handler="loadArticles"
           :prev-text="'Prev'"
           :next-text="'Next'"
