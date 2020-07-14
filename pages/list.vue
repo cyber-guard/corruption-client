@@ -15,14 +15,14 @@
             <mdb-col class="d-flex align-items-stretch" col="auto">
               <button
                 type="button"
-                class="btn btn-primary btn-lg m-0"
+                class="btn btn-primary btn-lg"
                 @click="helpModal = true"
               >
                 <mdb-icon icon="question" />
               </button>
             </mdb-col>
             <mdb-col class="d-flex align-items-stretch" col="auto">
-              <json-CSV :data="articles" class="btn btn-primary btn-lg m-0">
+              <json-CSV :data="articles" class="btn btn-primary btn-lg">
                 <mdb-icon icon="file-csv" />
                 Export page
               </json-CSV>
@@ -32,14 +32,10 @@
       </mdb-col>
       <mdb-col col="2" class="d-flex align-items-stretch">
         <mdb-card class="text-center" style="width: 100%">
-          <mdb-row>
-            <mdb-col class="p-2">
-              Results
-            </mdb-col>
-            <mdb-col class="p-2">
-              {{ articles_count }}
-            </mdb-col>
-          </mdb-row>
+          <p>
+            Results
+            {{ articles_count }}
+          </p>
         </mdb-card>
       </mdb-col>
     </mdb-row>
@@ -59,7 +55,7 @@
         <mdb-card class="mt-2">
           <mdb-card-body cascade>
             <mdb-row>
-              <mdb-col col="8">
+              <mdb-col col="9">
                 <a
                   class="d-inline-flex"
                   target="_blank"
@@ -78,10 +74,19 @@
                 </a>
                 <br />
                 <a
+                  :key="author"
+                  v-for="(author, index) in article.Authors"
                   href="#!"
                   @click="value = 'Authors:&quot;' + article.Authors + '&quot;'"
+                  style="display:inline"
                 >
-                  {{ article.Authors }}
+                  {{ author }}
+                  <div
+                    v-if="index !== article.Authors.length - 1"
+                    style="display:inline"
+                  >
+                    ,
+                  </div>
                 </a>
                 |
                 <a
@@ -99,56 +104,84 @@
                 </a>
                 <mdb-card-text>
                   <div class="text-justify">
-                    <text-highlight v-if="query" :queries="query">
-                      {{ article.Abstract }}
-                    </text-highlight>
+                    <div v-if="query">
+                      <text-highlight :queries="query">
+                        {{ article.Abstract }}
+                      </text-highlight>
+                    </div>
                     <div v-else>{{ article.Abstract }}</div>
+                    <a
+                      href="#!"
+                      :key="keyword"
+                      v-for="keyword in article.keywords"
+                      @click="value = 'Keywords:&quot;' + keyword + '&quot;'"
+                    >
+                      <mdb-badge color="primary" class="mt-2 ml-2">
+                        <mdb-icon icon="key" size="2x" />
+                        {{ keyword }}
+                      </mdb-badge>
+                    </a>
                   </div>
                 </mdb-card-text>
               </mdb-col>
-              <mdb-col col="4" class="text-right">
-                <mdb-row>
-                  <mdb-col col="6">
-                    <strong>Subject</strong>
-                  </mdb-col>
-                  <mdb-col col="6">
-                    {{ article.Subject }}
-                  </mdb-col>
-                </mdb-row>
-                <mdb-row>
-                  <mdb-col col="6">
+              <mdb-col col="3">
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item" style="border: none;">
+                    <div v-if="article.subjects && article.subjects.length > 0">
+                      <strong>Subject</strong>
+                      <mdb-badge
+                        :key="subject"
+                        v-for="subject in article.subjects"
+                        color="primary"
+                        class="mr-1"
+                      >
+                        {{ subject }}
+                      </mdb-badge>
+                    </div>
+                  </li>
+                  <li class="list-group-item" style="border: none;">
                     <strong>Type</strong>
-                  </mdb-col>
-                  <mdb-col col="6">
-                    {{ article.Type }}
-                  </mdb-col>
-                </mdb-row>
-                <mdb-row>
-                  <mdb-col col="6">
+                    <mdb-badge color="primary">
+                      {{ article.Type }}
+                    </mdb-badge>
+                  </li>
+                  <li class="list-group-item" style="border: none;">
                     <strong>Citations</strong>
-                  </mdb-col>
-                  <mdb-col col="6">
-                    {{ article.Citations }}
-                  </mdb-col>
-                </mdb-row>
-                <mdb-row>
-                  <mdb-col col="6">
-                    <strong>Keywords</strong>
-                  </mdb-col>
-                  <mdb-col col="6">
-                    {{ article.keywords }}
+                    <mdb-badge color="primary">
+                      {{ article.Citations }}
+                    </mdb-badge>
+                  </li>
+                </ul>
+                <mdb-row class="mt-2">
+                  <mdb-col col class="text-center">
+                    <mdb-btn
+                      tag="a"
+                      gradient="blue"
+                      target="_blank"
+                      class="article-btn"
+                      :href="'https://openaccessbutton.org/?id=' + article.doi"
+                      >Open <mdb-icon icon="unlock-alt" /> Access</mdb-btn
+                    >
                   </mdb-col>
                 </mdb-row>
                 <mdb-row class="mt-2">
-                  <mdb-col col="6">
-                    <strong>Share</strong>
+                  <mdb-col col class="text-center">
+                    <button
+                      class="btn btn-primary article-btn"
+                      :disabled="loading"
+                      @click="citation(article.doi)"
+                    >
+                      Citation
+                    </button>
                   </mdb-col>
-                  <mdb-col col="6">
+                </mdb-row>
+                <mdb-row class="mt-2 text-center">
+                  <mdb-col>
                     <ShareNetwork
                       network="linkedin"
                       :url="url"
                       :title="article.Title"
-                      class="px-2 fa-lg li-ic"
+                      class="px-2 li-ic fa-3x"
                     >
                       <mdb-icon fab icon="linkedin" />
                     </ShareNetwork>
@@ -156,7 +189,7 @@
                       network="twitter"
                       :url="url"
                       :title="article.Title"
-                      class="px-2 fa-lg li-ic"
+                      class="px-2 li-ic fa-3x"
                     >
                       <mdb-icon fab icon="twitter" />
                     </ShareNetwork>
@@ -164,30 +197,10 @@
                       network="facebook"
                       :url="url"
                       :title="article.Title"
-                      class="px-2 fa-lg li-ic"
+                      class="px-2 li-ic fa-3x"
                     >
                       <mdb-icon fab icon="facebook" />
                     </ShareNetwork>
-                  </mdb-col>
-                </mdb-row>
-                <mdb-row class="mt-2">
-                  <mdb-col col class="text-right">
-                    <mdb-btn
-                      tag="a"
-                      gradient="blue"
-                      target="_blank"
-                      :href="'https://openaccessbutton.org/?id=' + article.doi"
-                      >Open <mdb-icon icon="unlock-alt" /> Access</mdb-btn
-                    >
-                  </mdb-col>
-                  <mdb-col col class="text-right">
-                    <button
-                      class="btn btn-primary"
-                      :disabled="loading"
-                      @click="citation(article.doi)"
-                    >
-                      Citation
-                    </button>
                   </mdb-col>
                 </mdb-row>
               </mdb-col>
@@ -278,7 +291,8 @@ import {
   mdbModalBody,
   mdbModalFooter,
   mdbClipboard,
-  mdbSpinner
+  mdbSpinner,
+  mdbBadge
 } from 'mdbvue'
 import Cite from 'citation-js'
 import TextHighlight from 'vue-text-highlight'
@@ -307,6 +321,7 @@ export default {
     TextHighlight,
     mdbSpinner,
     Paginate,
+    mdbBadge,
     JsonCSV
   },
   directives: { mdbClipboard },
@@ -370,13 +385,13 @@ export default {
     loadArticles: _.debounce(async function(page) {
       const fields = {
         Citations: 'Citations_gte',
-        Title: 'Title_contains',
-        Abstract: 'Abstract_contains',
-        // Keywords: 'Keywords_contains',
-        Authors: 'Authors_contains',
-        Source: 'Source_contains',
-        Type: 'Type_contains',
-        Subject: 'Subject_contains',
+        Title: 'Title',
+        Abstract: 'Abstract',
+        Keywords: 'keywords',
+        Authors: 'authors',
+        Source: 'Source',
+        Type: 'Type',
+        Subject: 'Subject',
         Years: 'Year',
         Year: 'Year'
       }
@@ -423,20 +438,17 @@ export default {
         })
       }
 
-      myParams.Abstract_contains = myParams.Abstract_contains || queryString
-      myParams.Title_contains = myParams.Title_contains || queryString
-      // myParams.Keywords_contains = myParams.Keywords_contains || queryString
+      myParams.Abstract = myParams.Abstract || queryString
+      myParams.Title = myParams.Title || queryString
+      myParams.Keywords = myParams.Keywords || queryString
 
       this.query = queryString
       this.loading = true
-      const data = await this.$axios.$get('/articles', {
+      const data = await this.$axios.$get('/articles/searchAll', {
         params: myParams
       })
-      const count = await this.$axios.$get('/articles/count', {
-        params: myParams
-      })
-      this.articles_count = count
-      this.articles = data
+      this.articles = data.data
+      this.articles_count = data.count
       this.loading = false
     }, 500)
   }
@@ -450,5 +462,16 @@ export default {
 .md-form {
   margin-top: 0 !important;
   margin-bottom: 0 !important;
+}
+
+.list-group-item > strong,
+.list-group-item > div > strong {
+  display: inline-block;
+  width: 100px;
+  text-align: left;
+}
+
+.article-btn {
+  min-width: 250px;
 }
 </style>
