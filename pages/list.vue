@@ -22,7 +22,25 @@
               </button>
             </mdb-col>
             <mdb-col class="d-flex align-items-stretch" col="auto">
-              <json-CSV :data="articles" class="btn btn-primary btn-lg">
+              <json-CSV
+                :fields="[
+                  'Authors',
+                  'docnumber',
+                  'Title',
+                  'Abstract',
+                  'Link',
+                  'doi',
+                  'Year',
+                  'Publisher',
+                  'Citations',
+                  'Type',
+                  'Source',
+                  'subjects',
+                  'keywords'
+                ]"
+                :data="articles"
+                class="btn btn-primary btn-lg"
+              >
                 <mdb-icon icon="file-csv" />
                 Export page
               </json-CSV>
@@ -31,11 +49,18 @@
         </mdb-card>
       </mdb-col>
       <mdb-col col="2" class="d-flex align-items-stretch">
-        <mdb-card class="text-center" style="width: 100%">
-          <p>
-            Results
-            {{ articles_count }}
-          </p>
+        <mdb-card
+          class="justify-content-center align-items-center"
+          style="width: 100%"
+        >
+          <mdb-row>
+            <mdb-col>
+              Results
+            </mdb-col>
+            <mdb-col>
+              <b>{{ articles_count }}</b>
+            </mdb-col>
+          </mdb-row>
         </mdb-card>
       </mdb-col>
     </mdb-row>
@@ -77,7 +102,7 @@
                   :key="author"
                   v-for="(author, index) in article.Authors"
                   href="#!"
-                  @click="value = 'Authors:&quot;' + article.Authors + '&quot;'"
+                  @click="value = 'Authors:&quot;' + author + '&quot;'"
                   style="display:inline"
                 >
                   {{ author }}
@@ -112,7 +137,7 @@
                     <div v-else>{{ article.Abstract }}</div>
                     <a
                       href="#!"
-                      :key="keyword"
+                      :key="keyword + '-' + article.id"
                       v-for="keyword in article.keywords"
                       @click="value = 'Keywords:&quot;' + keyword + '&quot;'"
                     >
@@ -129,21 +154,28 @@
                   <li class="list-group-item" style="border: none;">
                     <div v-if="article.subjects && article.subjects.length > 0">
                       <strong>Subject</strong>
-                      <mdb-badge
+                      <a
                         :key="subject"
                         v-for="subject in article.subjects"
-                        color="primary"
-                        class="mr-1"
+                        href="#!"
+                        @click="value = 'Subject:&quot;' + subject + '&quot;'"
                       >
-                        {{ subject }}
-                      </mdb-badge>
+                        <mdb-badge color="primary" class="mr-1">
+                          {{ subject }}
+                        </mdb-badge>
+                      </a>
                     </div>
                   </li>
                   <li class="list-group-item" style="border: none;">
                     <strong>Type</strong>
-                    <mdb-badge color="primary">
-                      {{ article.Type }}
-                    </mdb-badge>
+                    <a
+                      href="#!"
+                      @click="value = 'Type:&quot;' + article.Type + '&quot;'"
+                    >
+                      <mdb-badge color="primary">
+                        {{ article.Type }}
+                      </mdb-badge>
+                    </a>
                   </li>
                   <li class="list-group-item" style="border: none;">
                     <strong>Citations</strong>
@@ -388,7 +420,7 @@ export default {
         Title: 'Title',
         Abstract: 'Abstract',
         Keywords: 'keywords',
-        Authors: 'authors',
+        Authors: 'Authors',
         Source: 'Source',
         Type: 'Type',
         Subject: 'Subject',
@@ -438,9 +470,10 @@ export default {
         })
       }
 
-      myParams.Abstract = myParams.Abstract || queryString
-      myParams.Title = myParams.Title || queryString
-      myParams.Keywords = myParams.Keywords || queryString
+      // myParams.Abstract = myParams.Abstract || queryString
+      // myParams.Title = myParams.Title || queryString
+      // myParams.Keywords = myParams.Keywords || queryString
+      myParams.q = queryString
 
       this.query = queryString
       this.loading = true
