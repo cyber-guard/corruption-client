@@ -442,6 +442,8 @@ export default {
         { a: [''] }
       ).a
 
+      console.log(matches)
+
       const limit = 20
       const start = page * 10 || 0
       const sort = this.sort || 'Year:desc'
@@ -464,8 +466,11 @@ export default {
             } else {
               myParams[fields[fieldValue[0]]] = fieldValue[1]
             }
-          } else {
-            queryString += fieldValue[0] ? fieldValue[0] + ' ' : ''
+          } else if (fieldValue[0]) {
+            queryString += fieldValue[0].match(/\s/)
+              ? '"' + fieldValue[0] + '"'
+              : fieldValue[0]
+            queryString += ' '
           }
         })
       }
@@ -473,6 +478,7 @@ export default {
       // myParams.Abstract = myParams.Abstract || queryString
       // myParams.Title = myParams.Title || queryString
       // myParams.Keywords = myParams.Keywords || queryString
+      queryString = queryString.trim()
       myParams.q = queryString
 
       this.query = queryString
